@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Фильмы</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+    .search-filter-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .search-box, .filter-button {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+    .search-box {
+      flex-grow: 1;
+    }
+    .filter-button {
+      background-color: #007BFF;
+      color: #fff;
+      cursor: pointer;
+    }
+    .filter-button:hover {
+      background-color: #0056b3;
+    }
+    .filter-menu {
+      display: none;
+      background-color: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 10px;
+      max-width: 400px;
+    }
+    .filter-menu label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    .filter-menu select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .movie-grid.vertical {
+      grid-template-columns: 1fr;
+    }
+    .movie {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .movie:hover {
+      transform: scale(1.05);
+    }
+    .movie img {
+      width: 100%;
+      display: block;
+    }
+    .movie-title {
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      background-color: #f1f1f1;
+    }
+    .movie-info {
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+    .video-container {
+      display: none;
+      text-align: center;
+    }
+    .video-container iframe {
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      border: none;
+    }
+    .back-button {
+      display: inline-block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .back-button:hover {
+      background-color: #0056b3;
+    }
+    .suggestions {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.suggestion {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.suggestion:hover {
+  background-color: #f1f1f1;
+}
+.suggestions {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.suggestion {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.suggestion:hover {
+  background-color: #f1f1f1;
+}
+.filter-menu {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.filter-menu label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.filter-menu select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.filter-menu .filter-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tv-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: #000;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.tv-container iframe {
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+  border: none;
+}
+
+.tv-button {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  margin: 0 10px;
+}
+
+.tv-button:hover {
+  background-color: #0056b3;
+}
+.profile-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.profile-picture img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-picture input {
+  margin-top: 10px;
+}
+
+.profile-info {
+  margin: 20px 0;
+}
+
+.profile-info label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.profile-info input, .profile-info textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#uploadedVideos video {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  margin: 10px auto;
+}
+.comments-section {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 8px;
+}
+.comments-section h3 {
+  margin-bottom: 10px;
+}
+.comments-section textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.comments-section button {
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.comments-section button:hover {
+  background-color: #0056b3;
+}
+.comment {
+  margin-top: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+.comment .reply {
+  margin-top: 5px;
+  color: #007BFF;
+  cursor: pointer;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+   
+    <!-- Поисковик и фильтр -->
+    <div class="search-filter-container">
+       
+
+      <input 
+        type="text" 
+        id="searchBox" 
+        class="search-box" 
+        placeholder="Искать фильмы..."
+      />
+      <div id="suggestions" class="suggestions"></div>
+      <button class="filter-button" id="filterButton">Настроить</button>
+    </div>
+    <div class="filter-menu" id="filterMenu">
+        <label for="yearFilter">Год выпуска</label>
+        <select id="yearFilter">
+          <option value="">Все года</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+        </select>
+      
+        <label for="countryFilter">Страна</label>
+        <select id="countryFilter">
+          <option value="">Все страны</option>
+          <option value="Россия">Россия</option>
+          <option value="США">США</option>
+          <option value="Япония">Япония</option>
+          <option value="Франция">Франция</option>
+          <option value="Германия">Германия</option>
+          <option value="Китай">Китай</option>
+        </select>
+      
+        <label for="studioFilter">Студия</label>
+        <select id="studioFilter">
+          <option value="">Все студии</option>
+          <option value="Студия 1">Студия 1</option>
+          <option value="Студия 2">Студия 2</option>
+          <option value="Студия 3">Студия 3</option>
+          <option value="Студия 4">Студия 4</option>
+          <option value="Студия 5">Студия 5</option>
+          <option value="Студия 6">Студия 6</option>
+        </select>
+      
+        <button id="applyFilters" class="filter-button">Применить</button>
+      </div>
+      
+ <!-- Кнопка TV -->
+ <button id="tvButton" class="filter-button">Режим TV</button>
+
+ <!-- Контейнер для TV -->
+ <div class="tv-container" id="tvContainer" style="display: none;">
+   <button id="prevChannel" class="tv-button">&lt;</button>
+   <iframe id="tvPlayer" src="" allowfullscreen></iframe>
+   <button id="nextChannel" class="tv-button">&gt;</button>
+ </div>
+ <button id="historyButton" class="filter-button">История просмотров</button>
+ <button id="homeButton" class="filter-button">Главная</button>
+ <button id="profileButton" class="filter-button">Профиль</button>
+ <div id="profileContainer" class="profile-container" style="display: none;">
+    <h2>Мой профиль</h2>
+    <div class="profile-picture">
+      <img id="profileImage" src="https://via.placeholder.com/150" alt="Профиль" />
+      <input type="file" id="uploadProfileImage" accept="image/*" />
+    </div>
+    <div class="profile-info">
+      <label for="usernameInput">Имя пользователя:</label>
+      <input type="text" id="usernameInput" />
+      <label for="channelDescription">Описание канала:</label>
+      <textarea id="channelDescription"></textarea>
+    </div>
+    <button id="saveProfile" class="filter-button">Сохранить профиль</button>
+    <h3>Мои видео</h3>
+    <input type="file" id="uploadVideo" accept="video/*" />
+    <div id="uploadedVideos"></div>
+  </div>
+  
+
+
+    <!-- Лента рекомендаций -->
+    <h1 id="recommendationTitle">Рекомендованные фильмы</h1>
+    <div class="movie-grid" id="movieGrid"></div>
+
+    <!-- Контейнер для просмотра видео -->
+    <div class="video-container" id="videoContainer">
+      <div class="comments-section" id="commentsSection">
+        <h3>Комментарии</h3>
+        <textarea id="newComment" placeholder="Введите ваш комментарий"></textarea>
+        <button id="addCommentButton">Добавить комментарий</button>
+        <div id="commentsList"></div>
+      </div>
+      
+      <iframe id="videoPlayer" src="" allowfullscreen></iframe>
+      <button class="back-button" id="backButton">Назад</button>
+      
+    </div>
+  </div>
+
+  <script>
+   // Массив данных о фильмах
+const movies = [
+  {
+    title: "мстители",
+    poster: "https://via.placeholder.com/200x300?text=Фильм+1",
+    video: "https://www.youtube.com/embed/ysz5S6PUM-U",
+    year: 2025,
+    country: "Россия",
+    studio: "Студия 1"
+  },
+  {
+    title: "человек паук",
+    poster: "https://via.placeholder.com/200x300?text=Фильм+2",
+    video: "https://www.youtube.com/embed/ScMzIvxBSi4",
+    year: 2024,
+    country: "США",
+    studio: "Студия 2"
+  },
+  {
+    title: "доктор стрендж",
+    poster: "https://via.placeholder.com/200x300?text=Фильм+3",
+    video: "https://www.youtube.com/embed/jNQXAC9IVRw",
+    year: 2023,
+    country: "Япония",
+    studio: "Студия 3"
+  },
+  {
+    title: "Фильм 4",
+    poster: "https://via.placeholder.com/200x300?text=Фильм+4",
+    video: "https://www.youtube.com/embed/kJQP7kiw5Fk",
+    year: 2022,
+    country: "Франция",
+    studio: "Студия 4"
+  },
+  {
+    title: "Фильм 5",
+    poster: "https://via.placeholder.com/200x300?text=Фильм+5",
+    video: "https://www.youtube.com/embed/tgbNymZ7vqY",
+    year: 2025,
+    country: "Германия",
+    studio: "Студия 5"
+  },
+  {
+    title: "Фильм 6",
+    poster: "https://via.placeholder.com/200x300?text=Фильм+6",
+    video: "https://www.youtube.com/embed/sBws8MSXN7A",
+    year: 2023,
+    country: "Китай",
+    studio: "Студия 6"
+  }
+];
+
+// Основные элементы
+const movieGrid = document.getElementById("movieGrid");
+const videoContainer = document.getElementById("videoContainer");
+const videoPlayer = document.getElementById("videoPlayer");
+const backButton = document.getElementById("backButton");
+const recommendationTitle = document.getElementById("recommendationTitle");
+const searchBox = document.getElementById("searchBox");
+const suggestions = document.getElementById("suggestions");
+const filterButton = document.getElementById("filterButton");
+const filterMenu = document.getElementById("filterMenu");
+const yearFilter = document.getElementById("yearFilter");
+const countryFilter = document.getElementById("countryFilter");
+const studioFilter = document.getElementById("studioFilter");
+const applyFilters = document.getElementById("applyFilters");
+const tvButton = document.getElementById("tvButton");
+const tvContainer = document.getElementById("tvContainer");
+const tvPlayer = document.getElementById("tvPlayer");
+const prevChannel = document.getElementById("prevChannel");
+const nextChannel = document.getElementById("nextChannel");
+
+// Список каналов для режима TV
+const tvChannels = [
+  "https://www.youtube.com/embed/ysz5S6PUM-U", // Канал 1
+  "https://www.youtube.com/embed/ScMzIvxBSi4", // Канал 2
+  "https://www.youtube.com/embed/jNQXAC9IVRw"  // Канал 3
+];
+
+let currentChannel = 0;
+
+// Функция для отображения фильмов
+function loadMovies(filteredMovies = movies) {
+  movieGrid.innerHTML = "";
+  videoContainer.style.display = "none";
+  tvContainer.style.display = "none";
+  recommendationTitle.style.display = "block";
+  movieGrid.style.display = "grid";
+  filteredMovies.forEach(movie => {
+    const movieElement = document.createElement("div");
+    movieElement.className = "movie";
+    movieElement.innerHTML = `
+      <img src="${movie.poster}" alt="${movie.title}">
+      <div class="movie-title">${movie.title}</div>
+      <div class="movie-info">Год: ${movie.year}</div>
+    `;
+    movieElement.addEventListener("click", () => {
+      viewMovie(movie);
+    });
+    movieGrid.appendChild(movieElement);
+  });
+}
+
+// Функция для просмотра фильма
+function viewMovie(movie) {
+  movieGrid.style.display = "none";
+  recommendationTitle.style.display = "none";
+  videoContainer.style.display = "block";
+  tvContainer.style.display = "none";
+  videoPlayer.src = movie.video;
+}
+
+// Кнопка "Назад"
+backButton.addEventListener("click", () => {
+  videoPlayer.src = "";
+  loadMovies();
+});
+
+// Обработка ввода текста в строку поиска
+searchBox.addEventListener("input", (e) => {
+  const query = e.target.value.toLowerCase();
+  suggestions.innerHTML = ""; // Очистка подсказок
+  if (query) {
+    const matches = movies.filter(movie => movie.title.toLowerCase().includes(query));
+    matches.forEach(movie => {
+      const suggestionItem = document.createElement("div");
+      suggestionItem.className = "suggestion";
+      suggestionItem.textContent = movie.title;
+      suggestionItem.addEventListener("click", () => {
+        searchBox.value = movie.title;
+        loadMovies([movie]);
+        suggestions.style.display = "none";
+      });
+      suggestions.appendChild(suggestionItem);
+    });
+    suggestions.style.display = matches.length > 0 ? "block" : "none";
+  } else {
+    suggestions.style.display = "none";
+  }
+});
+
+// Показ или скрытие меню фильтрации
+filterButton.addEventListener("click", () => {
+  filterMenu.style.display = filterMenu.style.display === "block" ? "none" : "block";
+});
+
+// Применение фильтров
+applyFilters.addEventListener("click", () => {
+  const selectedYear = yearFilter.value;
+  const selectedCountry = countryFilter.value;
+  const selectedStudio = studioFilter.value;
+
+  const filteredMovies = movies.filter(movie => {
+    const matchesYear = selectedYear ? movie.year.toString() === selectedYear : true;
+    const matchesCountry = selectedCountry ? movie.country === selectedCountry : true;
+    const matchesStudio = selectedStudio ? movie.studio === selectedStudio : true;
+    return matchesYear && matchesCountry && matchesStudio;
+  });
+
+  filteredMovies.sort((a, b) => b.year - a.year);
+  loadMovies(filteredMovies);
+  filterMenu.style.display = "none";
+});
+
+// Функция для переключения канала
+function changeChannel(index) {
+  currentChannel = (index + tvChannels.length) % tvChannels.length;
+  tvPlayer.src = tvChannels[currentChannel];
+}
+
+// Кнопка TV: переключение в режим TV
+tvButton.addEventListener("click", () => {
+  tvContainer.style.display = "flex";
+  movieGrid.style.display = "none";
+  recommendationTitle.style.display = "none";
+  changeChannel(currentChannel);
+});
+
+// Кнопки переключения каналов
+prevChannel.addEventListener("click", () => changeChannel(currentChannel - 1));
+nextChannel.addEventListener("click", () => changeChannel(currentChannel + 1));
+
+// Загрузка фильмов по умолчанию
+loadMovies();
+// Массив для хранения истории просмотров
+let viewedMovies = JSON.parse(localStorage.getItem("viewedMovies")) || [];
+
+// Функция для добавления фильма в историю просмотров
+function addToHistory(movie) {
+  // Проверка на дубликаты
+  const exists = viewedMovies.find(item => item.title === movie.title);
+  if (!exists) {
+    viewedMovies.unshift(movie); // Добавляем фильм в начало списка
+    localStorage.setItem("viewedMovies", JSON.stringify(viewedMovies)); // Сохраняем в localStorage
+  }
+}
+
+// Обновление функции просмотра фильма
+function viewMovie(movie) {
+  movieGrid.style.display = "none";
+  recommendationTitle.style.display = "none";
+  videoContainer.style.display = "block";
+  tvContainer.style.display = "none";
+  videoPlayer.src = movie.video;
+
+  // Добавляем фильм в историю
+  addToHistory(movie);
+}
+
+// Кнопка для отображения истории
+const historyButton = document.getElementById("historyButton");
+historyButton.addEventListener("click", () => {
+  recommendationTitle.textContent = "История просмотров";
+  loadMovies(viewedMovies); // Загружаем фильмы из истории
+});
+// Кнопка "Главная"
+const homeButton = document.getElementById("homeButton");
+
+// Обработка нажатия на кнопку "Главная"
+homeButton.addEventListener("click", () => {
+  // Скрываем все дополнительные режимы
+  tvContainer.style.display = "none";
+  videoContainer.style.display = "none";
+  filterMenu.style.display = "none";
+
+  // Показ главной ленты рекомендаций
+  recommendationTitle.textContent = "Рекомендованные фильмы";
+  recommendationTitle.style.display = "block";
+  movieGrid.style.display = "grid";
+
+  // Загружаем все фильмы
+  loadMovies();
+});
+// Профиль: элементы
+const profileButton = document.getElementById("profileButton");
+const profileContainer = document.getElementById("profileContainer");
+const profileImage = document.getElementById("profileImage");
+const uploadProfileImage = document.getElementById("uploadProfileImage");
+const usernameInput = document.getElementById("usernameInput");
+const channelDescription = document.getElementById("channelDescription");
+const saveProfileButton = document.getElementById("saveProfile");
+const uploadVideo = document.getElementById("uploadVideo");
+const uploadedVideos = document.getElementById("uploadedVideos");
+
+// Локальное хранилище
+let profileData = JSON.parse(localStorage.getItem("profileData")) || {
+  username: "Ваше имя",
+  description: "Описание канала",
+  profileImage: "https://via.placeholder.com/150",
+  videos: []
+};
+
+// Загрузка профиля
+function loadProfile() {
+  profileImage.src = profileData.profileImage;
+  usernameInput.value = profileData.username;
+  channelDescription.value = profileData.description;
+
+  uploadedVideos.innerHTML = "";
+  profileData.videos.forEach(videoSrc => {
+    const video = document.createElement("video");
+    video.controls = true;
+    video.src = videoSrc;
+    uploadedVideos.appendChild(video);
+  });
+}
+
+// Сохранение профиля
+saveProfileButton.addEventListener("click", () => {
+  profileData.username = usernameInput.value;
+  profileData.description = channelDescription.value;
+
+  localStorage.setItem("profileData", JSON.stringify(profileData));
+  alert("Профиль сохранён!");
+});
+
+// Загрузка картинки профиля
+uploadProfileImage.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    profileData.profileImage = reader.result;
+    profileImage.src = reader.result;
+    localStorage.setItem("profileData", JSON.stringify(profileData));
+  };
+  if (file) reader.readAsDataURL(file);
+});
+
+// Загрузка видео
+uploadVideo.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    profileData.videos.push(reader.result);
+    localStorage.setItem("profileData", JSON.stringify(profileData));
+    loadProfile();
+  };
+  if (file) reader.readAsDataURL(file);
+});
+
+// Кнопка "Профиль"
+profileButton.addEventListener("click", () => {
+  tvContainer.style.display = "none";
+  videoContainer.style.display = "none";
+  filterMenu.style.display = "none";
+  movieGrid.style.display = "none";
+  recommendationTitle.style.display = "none";
+  profileContainer.style.display = "block";
+
+  loadProfile(); // Загружаем профиль при входе
+});
+homeButton.addEventListener("click", () => {
+  // Скрываем все дополнительные режимы
+  tvContainer.style.display = "none";
+  videoContainer.style.display = "none";
+  filterMenu.style.display = "none";
+  profileContainer.style.display = "none"; // Добавляем скрытие профиля
+
+  // Показ главной ленты рекомендаций
+  recommendationTitle.textContent = "Рекомендованные фильмы";
+  recommendationTitle.style.display = "block";
+  movieGrid.style.display = "grid";
+
+  // Загружаем все фильмы
+  loadMovies();
+});
+// Хранилище для комментариев
+let comments = JSON.parse(localStorage.getItem("comments")) || {};
+
+// Отображение комментариев
+function displayComments(videoId) {
+  const commentsList = document.getElementById("commentsList");
+  commentsList.innerHTML = "";
+
+  if (comments[videoId]) {
+    comments[videoId].forEach((comment, index) => {
+      const commentDiv = document.createElement("div");
+      commentDiv.className = "comment";
+      commentDiv.innerHTML = `
+        <p>${comment.text}</p>
+        <span class="reply" onclick="addReply('${videoId}', ${index})">Ответить</span>
+        <div class="replies">
+          ${comment.replies.map(reply => `<p>${reply}</p>`).join("")}
+        </div>
+      `;
+      commentsList.appendChild(commentDiv);
+    });
+  }
+}
+
+// Добавление комментария
+document.getElementById("addCommentButton").addEventListener("click", () => {
+  const videoId = videoPlayer.src; // Уникальный идентификатор видео
+  const newComment = document.getElementById("newComment").value;
+
+  if (!comments[videoId]) {
+    comments[videoId] = [];
+  }
+  comments[videoId].push({ text: newComment, replies: [] });
+  localStorage.setItem("comments", JSON.stringify(comments));
+  displayComments(videoId);
+  document.getElementById("newComment").value = "";
+});
+
+// Добавление ответа
+function addReply(videoId, commentIndex) {
+  const reply = prompt("Введите ваш ответ:");
+  if (reply) {
+    comments[videoId][commentIndex].replies.push(reply);
+    localStorage.setItem("comments", JSON.stringify(comments));
+    displayComments(videoId);
+  }
+}
+
+// Подключение к видео
+videoPlayer.addEventListener("load", () => {
+  displayComments(videoPlayer.src);
+});
+
+  </script>
+</body>
+</html>
